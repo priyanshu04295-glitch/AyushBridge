@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Python virtual environment
+backend/venv/
+venv/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# SQLite database
+backend/*.db
+backend/*.sqlite
+backend/*.sqlite3
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Node
+frontend/node_modules/
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
