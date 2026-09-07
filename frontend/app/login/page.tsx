@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+const API_BASE_URL = "https://ayushbridge-api.onrender.com";
+
 const roles = [
   {
     id: "student",
@@ -62,7 +64,7 @@ export default function LoginPage() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/auth/login?email=${encodeURIComponent(
+        `${API_BASE_URL}/auth/login?email=${encodeURIComponent(
           email
         )}&password=${encodeURIComponent(password)}`,
         {
@@ -92,13 +94,9 @@ export default function LoginPage() {
         );
       }
 
-      // Get the actual role from the authenticated backend account.
       const userRole = data.user.role;
 
-      // IMPORTANT:
-      // The selected role must match the actual account role.
       if (userRole !== selectedRole) {
-        // Clear any old authentication data.
         localStorage.removeItem("ayushbridge_token");
         localStorage.removeItem("ayushbridge_user");
 
@@ -127,7 +125,6 @@ export default function LoginPage() {
         );
       }
 
-      // Store authentication only AFTER role validation succeeds.
       localStorage.setItem(
         "ayushbridge_token",
         data.access_token
@@ -138,8 +135,6 @@ export default function LoginPage() {
         JSON.stringify(data.user)
       );
 
-      // Store authentication data in cookies so
-      // Next.js middleware can enforce RBAC.
       document.cookie = `ayushbridge_token=${data.access_token}; path=/; max-age=3600; SameSite=Lax`;
 
       document.cookie = `ayushbridge_role=${data.user.role}; path=/; max-age=3600; SameSite=Lax`;
