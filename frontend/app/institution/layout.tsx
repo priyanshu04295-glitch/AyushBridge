@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function AdminLayout({
+export default function InstitutionLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -16,23 +16,23 @@ export default function AdminLayout({
   const navigation = [
     {
       label: "Dashboard",
-      href: "/admin",
+      href: "/institution/dashboard",
     },
     {
-      label: "Users",
-      href: "/admin/users",
+      label: "Analytics",
+      href: "/institution/analytics",
     },
     {
-      label: "Opportunities",
-      href: "/admin/opportunities",
+      label: "Student Intelligence",
+      href: "/student/dashboard",
     },
     {
-      label: "Skills",
-      href: "/admin/skills",
+      label: "Industry Demand",
+      href: "/industry",
     },
     {
-      label: "Verification",
-      href: "/admin/verification",
+      label: "Faculty Network",
+      href: "/faculty",
     },
   ];
 
@@ -53,7 +53,7 @@ export default function AdminLayout({
     <div className="min-h-screen bg-slate-950 text-white">
       <div className="flex min-h-screen">
 
-        {/* Admin Sidebar */}
+        {/* Institution Sidebar */}
         <aside className="fixed left-0 top-0 hidden h-screen w-64 border-r border-slate-800 bg-slate-950 lg:block">
           <div className="flex h-full flex-col p-6">
 
@@ -84,9 +84,15 @@ export default function AdminLayout({
             <nav className="flex-1 space-y-2">
 
               {navigation.map((item) => {
-                const isActive =
-                  item.href === "/admin"
-                    ? pathname === "/admin"
+                const isExternalRole =
+                  item.href === "/student/dashboard" ||
+                  item.href === "/industry" ||
+                  item.href === "/faculty";
+
+                const isActive = isExternalRole
+                  ? false
+                  : item.href === "/institution/dashboard"
+                    ? pathname === "/institution/dashboard"
                     : pathname.startsWith(item.href);
 
                 return (
@@ -119,17 +125,17 @@ export default function AdminLayout({
 
                 {/* Avatar */}
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-400/10 text-sm font-semibold text-emerald-400">
-                  AD
+                  IA
                 </div>
 
                 {/* Profile Info */}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-white">
-                    Administrator
+                    Institution Admin
                   </p>
 
                   <p className="truncate text-xs text-slate-500">
-                    Admin · Platform
+                    Institution · Admin
                   </p>
                 </div>
 
@@ -149,23 +155,23 @@ export default function AdminLayout({
                 <div className="absolute bottom-16 left-0 w-full overflow-hidden rounded-xl border border-slate-800 bg-slate-900 shadow-2xl">
 
                   <Link
-                    href="/admin"
+                    href="/institution/dashboard"
                     onClick={() =>
                       setProfileOpen(false)
                     }
                     className="block px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
                   >
-                    Admin Dashboard
+                    Institution Dashboard
                   </Link>
 
                   <Link
-                    href="/admin/users"
+                    href="/institution/analytics"
                     onClick={() =>
                       setProfileOpen(false)
                     }
                     className="block px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
                   >
-                    User Management
+                    Analytics
                   </Link>
 
                   <div className="border-t border-slate-800" />

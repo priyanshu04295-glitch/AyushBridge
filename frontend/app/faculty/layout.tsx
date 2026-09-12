@@ -1,75 +1,210 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function FacultyLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  const navigation = [
+    {
+      label: "Dashboard",
+      href: "/faculty",
+    },
+    {
+      label: "Collaborations",
+      href: "/faculty/collaborations",
+    },
+    {
+      label: "Mentorship",
+      href: "/faculty/mentorship",
+    },
+    {
+      label: "Research",
+      href: "/faculty/research",
+    },
+  ];
+
+  function handleLogout() {
+    localStorage.removeItem("ayushbridge_token");
+    localStorage.removeItem("ayushbridge_role");
+
+    document.cookie =
+      "ayushbridge_token=; path=/; max-age=0";
+
+    document.cookie =
+      "ayushbridge_role=; path=/; max-age=0";
+
+    router.push("/login");
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <div className="flex min-h-screen">
-        {/* Faculty Sidebar */}
-        <aside className="fixed left-0 top-0 hidden h-screen w-64 border-r border-slate-800 bg-slate-950 lg:block">
-          <div className="flex h-full flex-col p-6">
-            {/* Brand */}
-            <Link href="/" className="mb-10 block">
-              <div className="text-xl font-bold tracking-tight text-emerald-400">
-                AyushBridge
-              </div>
 
-              <div className="mt-1 text-xs text-slate-500">
-                Faculty Portal
+        {/* SIDEBAR */}
+        <aside className="fixed left-0 top-0 hidden h-screen w-64 border-r border-slate-800 bg-slate-950 lg:block">
+
+          <div className="flex h-full flex-col p-6">
+
+            {/* BRAND */}
+            <Link
+              href="/"
+              className="mb-10 block"
+            >
+              <div className="flex items-center gap-3">
+
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-400/30 bg-emerald-400/10 text-lg font-bold text-emerald-400">
+                  A
+                </div>
+
+                <div>
+                  <div className="text-lg font-bold tracking-tight text-white">
+                    AyushBridge
+                  </div>
+
+                  <div className="mt-0.5 text-[10px] text-slate-500">
+                    Faculty Portal
+                  </div>
+                </div>
+
               </div>
             </Link>
 
-            {/* Navigation */}
+            {/* NAVIGATION */}
             <nav className="flex-1 space-y-2">
-              <Link
-                href="/faculty"
-                className="block rounded-xl px-4 py-3 text-sm text-slate-400 transition hover:bg-slate-900 hover:text-white"
-              >
-                Dashboard
-              </Link>
 
-              <Link
-                href="/faculty/collaborations"
-                className="block rounded-xl px-4 py-3 text-sm text-slate-400 transition hover:bg-slate-900 hover:text-white"
-              >
-                Collaborations
-              </Link>
+              {navigation.map((item) => {
+                const isActive =
+                  item.href === "/faculty"
+                    ? pathname === "/faculty"
+                    : pathname.startsWith(
+                        item.href
+                      );
 
-              <Link
-                href="/faculty/mentorship"
-                className="block rounded-xl px-4 py-3 text-sm text-slate-400 transition hover:bg-slate-900 hover:text-white"
-              >
-                Mentorship
-              </Link>
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`block rounded-xl px-4 py-3 text-sm transition ${
+                      isActive
+                        ? "bg-emerald-400/10 text-emerald-400"
+                        : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
 
-              <Link
-                href="/faculty/research"
-                className="block rounded-xl px-4 py-3 text-sm text-slate-400 transition hover:bg-slate-900 hover:text-white"
-              >
-                Research
-              </Link>
             </nav>
 
-            {/* Footer */}
-            <div className="border-t border-slate-800 pt-5">
-              <p className="text-xs text-slate-600">
-                AyushBridge · Faculty
-              </p>
+            {/* PROFILE */}
+            <div className="relative border-t border-slate-800 pt-5">
 
-              <p className="mt-1 text-xs text-slate-700">
-                Academia–Industry Intelligence
-              </p>
+              <button
+                type="button"
+                onClick={() =>
+                  setProfileOpen(!profileOpen)
+                }
+                className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-slate-900"
+              >
+
+                {/* AVATAR */}
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-400/10 text-sm font-semibold text-emerald-400">
+                  FP
+                </div>
+
+                {/* INFO */}
+                <div className="min-w-0 flex-1">
+
+                  <p className="truncate text-sm font-medium text-white">
+                    Dr. Meena Sharma
+                  </p>
+
+                  <p className="truncate text-xs text-slate-500">
+                    Faculty · Academia
+                  </p>
+
+                </div>
+
+                {/* ARROW */}
+                <span
+                  className={`text-xs text-slate-500 transition ${
+                    profileOpen
+                      ? "rotate-180"
+                      : ""
+                  }`}
+                >
+                  ▾
+                </span>
+
+              </button>
+
+              {/* DROPDOWN */}
+              {profileOpen && (
+                <div className="absolute bottom-16 left-0 w-full overflow-hidden rounded-xl border border-slate-800 bg-slate-900 shadow-2xl">
+
+                  <Link
+                    href="/faculty"
+                    onClick={() =>
+                      setProfileOpen(false)
+                    }
+                    className="block px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                  >
+                    Faculty Dashboard
+                  </Link>
+
+                  <Link
+                    href="/faculty/collaborations"
+                    onClick={() =>
+                      setProfileOpen(false)
+                    }
+                    className="block px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                  >
+                    Collaborations
+                  </Link>
+
+                  <Link
+                    href="/faculty/mentorship"
+                    onClick={() =>
+                      setProfileOpen(false)
+                    }
+                    className="block px-4 py-3 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                  >
+                    Mentorship
+                  </Link>
+
+                  <div className="border-t border-slate-800" />
+
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="block w-full px-4 py-3 text-left text-sm text-red-400 transition hover:bg-red-500/10"
+                  >
+                    Sign out
+                  </button>
+
+                </div>
+              )}
+
             </div>
+
           </div>
         </aside>
 
-        {/* Main Content */}
+        {/* MAIN CONTENT */}
         <main className="min-h-screen flex-1 lg:ml-64">
           {children}
         </main>
+
       </div>
     </div>
   );

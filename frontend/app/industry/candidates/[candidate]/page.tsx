@@ -39,11 +39,9 @@ export default function CandidateProfilePage({
     useState<Candidate | null>(null);
 
   const [evidence, setEvidence] = useState<Evidence[]>([]);
-
   const [loading, setLoading] = useState(true);
-  const [verifyingId, setVerifyingId] = useState<number | null>(
-    null
-  );
+  const [verifyingId, setVerifyingId] =
+    useState<number | null>(null);
 
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -52,24 +50,23 @@ export default function CandidateProfilePage({
     try {
       setError("");
 
-      const [
-        candidateResponse,
-        evidenceResponse,
-      ] = await Promise.all([
-        fetch(
-          `http://127.0.0.1:8000/industry/candidates/${candidate}`
-        ),
-        fetch(
-          `http://127.0.0.1:8000/industry/verification/${candidate}`
-        ),
-      ]);
+      const [candidateResponse, evidenceResponse] =
+        await Promise.all([
+          fetch(
+            `http://127.0.0.1:8000/industry/candidates/${candidate}`
+          ),
+          fetch(
+            `http://127.0.0.1:8000/industry/verification/${candidate}`
+          ),
+        ]);
 
-      if (!candidateResponse.ok) {
-        throw new Error("Failed to load candidate.");
-      }
-
-      if (!evidenceResponse.ok) {
-        throw new Error("Failed to load candidate evidence.");
+      if (
+        !candidateResponse.ok ||
+        !evidenceResponse.ok
+      ) {
+        throw new Error(
+          "Failed to load candidate information."
+        );
       }
 
       const candidateDataResponse =
@@ -90,47 +87,7 @@ export default function CandidateProfilePage({
   }
 
   useEffect(() => {
-    let isCurrent = true;
-
-    async function loadInitialData() {
-      try {
-        const [candidateResponse, evidenceResponse] = await Promise.all([
-          fetch(
-            `http://127.0.0.1:8000/industry/candidates/${candidate}`
-          ),
-          fetch(
-            `http://127.0.0.1:8000/industry/verification/${candidate}`
-          ),
-        ]);
-
-        if (!candidateResponse.ok || !evidenceResponse.ok) {
-          throw new Error("Failed to load candidate information.");
-        }
-
-        const candidateDataResponse = await candidateResponse.json();
-        const evidenceData = await evidenceResponse.json();
-
-        if (isCurrent) {
-          setCandidateData(candidateDataResponse);
-          setEvidence(evidenceData);
-          setError("");
-        }
-      } catch {
-        if (isCurrent) {
-          setError("Unable to load candidate information.");
-        }
-      } finally {
-        if (isCurrent) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void loadInitialData();
-
-    return () => {
-      isCurrent = false;
-    };
+    void loadData();
   }, [candidate]);
 
   async function verifyEvidence(evidenceId: number) {
@@ -163,7 +120,7 @@ export default function CandidateProfilePage({
       }
 
       setMessage(
-        "Evidence verified successfully. The candidate's verified portfolio has been updated."
+        "Evidence verified successfully. The candidate portfolio has been updated."
       );
 
       await loadData();
@@ -181,8 +138,8 @@ export default function CandidateProfilePage({
   if (loading) {
     return (
       <main className="min-h-screen bg-slate-950 p-8 text-white">
-        <div className="mx-auto max-w-6xl">
-          <p className="text-sm text-slate-400">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-sm text-slate-500">
             Loading candidate profile...
           </p>
         </div>
@@ -193,7 +150,7 @@ export default function CandidateProfilePage({
   if (!candidateData) {
     return (
       <main className="min-h-screen bg-slate-950 p-8 text-white">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-7xl">
           <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6">
             <p className="text-sm text-red-400">
               {error || "Candidate not found."}
@@ -214,49 +171,63 @@ export default function CandidateProfilePage({
       item.verification_status !== "Verified"
   ).length;
 
+  const evidenceStrength =
+    evidence.length > 0
+      ? Math.round(
+          (verifiedCount / evidence.length) * 100
+        )
+      : 0;
+
+  const initials = candidateData.name
+    .split(" ")
+    .map((name) => name[0])
+    .join("")
+    .slice(0, 2);
+
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-      <div className="mx-auto max-w-7xl p-6 lg:p-10">
+      <div className="mx-auto max-w-7xl px-5 py-7 lg:px-10 lg:py-9">
 
-        {/* Back */}
-        <Link
-          href="/industry/candidates"
-          className="inline-flex items-center text-sm text-slate-400 hover:text-white"
-        >
-          ← Back to Candidates
-        </Link>
+        {/* HEADER */}
+        <div className="mb-6">
+          <Link
+            href="/industry/candidates"
+            className="inline-flex items-center gap-2 text-sm text-slate-500 transition hover:text-white"
+          >
+            <span>←</span>
+            Back to Candidates
+          </Link>
+        </div>
 
-        {/* Header */}
-        <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+        {/* PROFILE HEADER */}
+        <section className="rounded-2xl border border-white/[0.07] bg-slate-900/70 p-6 sm:p-7">
+
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
 
             <div className="flex items-center gap-5">
 
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10 text-2xl font-bold text-emerald-400">
-                {candidateData.name
-                  .split(" ")
-                  .map((name) => name[0])
-                  .join("")
-                  .slice(0, 2)}
+              {/* Avatar */}
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.06] text-lg font-bold text-emerald-400">
+                {initials}
               </div>
 
               <div>
-                <p className="text-sm text-emerald-400">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-400">
                   Candidate Profile
                 </p>
 
-                <h1 className="mt-1 text-2xl font-bold">
+                <h1 className="mt-1 text-2xl font-bold tracking-tight">
                   {candidateData.name}
                 </h1>
 
-                <p className="mt-1 text-sm text-slate-400">
+                <p className="mt-1 text-sm text-slate-500">
                   {candidateData.program} ·{" "}
                   {candidateData.institution}
                 </p>
 
                 <p className="mt-2 text-sm text-slate-300">
-                  Target Role:{" "}
-                  <span className="font-medium text-white">
+                  Target Role{" "}
+                  <span className="text-emerald-400">
                     {candidateData.target_role}
                   </span>
                 </p>
@@ -264,244 +235,241 @@ export default function CandidateProfilePage({
 
             </div>
 
-            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-6 py-4 text-center">
-              <p className="text-xs text-slate-400">
-                Readiness Score
+            {/* READINESS */}
+            <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] px-7 py-4 text-center">
+
+              <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
+                Readiness
               </p>
 
               <p className="mt-1 text-3xl font-bold text-emerald-400">
                 {candidateData.readiness_score}%
               </p>
+
             </div>
 
           </div>
-        </div>
 
+        </section>
+
+        {/* MESSAGES */}
         {message && (
-          <div className="mt-6 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-400">
+          <div className="mt-5 rounded-xl border border-emerald-400/20 bg-emerald-400/[0.05] p-4 text-sm text-emerald-300">
             {message}
           </div>
         )}
 
         {error && (
-          <div className="mt-6 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+          <div className="mt-5 rounded-xl border border-red-500/20 bg-red-500/[0.05] p-4 text-sm text-red-300">
             {error}
           </div>
         )}
 
-        {/* Summary */}
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
+        {/* EVIDENCE SUMMARY */}
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-            <p className="text-sm text-slate-500">
-              Verified Evidence
-            </p>
+          <SummaryCard
+            label="Verified Evidence"
+            value={verifiedCount}
+            valueClass="text-emerald-400"
+          />
 
-            <p className="mt-2 text-2xl font-bold text-emerald-400">
-              {verifiedCount}
-            </p>
-          </div>
+          <SummaryCard
+            label="Pending Review"
+            value={pendingCount}
+            valueClass="text-amber-400"
+          />
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-            <p className="text-sm text-slate-500">
-              Pending Evidence
-            </p>
-
-            <p className="mt-2 text-2xl font-bold text-amber-400">
-              {pendingCount}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-            <p className="text-sm text-slate-500">
-              Evidence Strength
-            </p>
-
-            <p className="mt-2 text-2xl font-bold">
-              {evidence.length > 0
-                ? Math.round(
-                    (verifiedCount /
-                      evidence.length) *
-                      100
-                  )
-                : 0}
-              %
-            </p>
-          </div>
+          <SummaryCard
+            label="Evidence Strength"
+            value={`${evidenceStrength}%`}
+            valueClass="text-white"
+          />
 
         </div>
 
-        {/* Main Grid */}
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1.2fr]">
+        {/* MAIN CONTENT */}
+        <div className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
 
-          {/* Skills */}
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+          {/* COMPETENCIES */}
+          <section className="rounded-2xl border border-white/[0.07] bg-slate-900/70 p-6">
 
-            <h2 className="text-lg font-semibold">
-              Competency Profile
-            </h2>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">
+                Competencies
+              </p>
 
-            <p className="mt-1 text-sm text-slate-400">
-              Current competency strength for the candidate.
-            </p>
+              <h2 className="mt-1 text-xl font-semibold">
+                Competency Profile
+              </h2>
 
-            <div className="mt-6 space-y-5">
+              <p className="mt-1 text-sm text-slate-500">
+                Current competency strength.
+              </p>
+            </div>
 
-              {candidateData.skills?.map(
-                (skill) => (
+            <div className="mt-7 space-y-5">
+
+              {candidateData.skills?.length > 0 ? (
+                candidateData.skills.map((skill) => (
                   <div key={skill.name}>
 
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-sm text-slate-300">
                         {skill.name}
                       </span>
 
-                      <span className="text-sm font-semibold">
+                      <span className="text-sm font-semibold text-white">
                         {skill.score}%
                       </span>
                     </div>
 
                     <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-800">
                       <div
-                        className="h-full rounded-full bg-emerald-500"
+                        className="h-full rounded-full bg-emerald-400 transition-all"
                         style={{
-                          width: `${skill.score}%`,
+                          width: `${Math.min(
+                            skill.score,
+                            100
+                          )}%`,
                         }}
                       />
                     </div>
 
                   </div>
-                )
+                ))
+              ) : (
+                <p className="text-sm text-slate-500">
+                  No competency data available.
+                </p>
               )}
 
             </div>
 
           </section>
 
-          {/* Evidence */}
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+          {/* EVIDENCE */}
+          <section className="rounded-2xl border border-white/[0.07] bg-slate-900/70 p-6">
 
-            <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
 
               <div>
-                <h2 className="text-lg font-semibold">
-                  Evidence Review
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">
+                  Verification
+                </p>
+
+                <h2 className="mt-1 text-xl font-semibold">
+                  Evidence
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-400">
-                  Review evidence supporting the candidate&apos;s competencies.
+                <p className="mt-1 text-sm text-slate-500">
+                  Review evidence supporting candidate competencies.
                 </p>
               </div>
 
-              <span className="rounded-full bg-indigo-500/10 px-3 py-1.5 text-xs font-medium text-indigo-400">
-                Industry Verification
+              <span className="text-xs text-slate-600">
+                {evidence.length} items
               </span>
 
             </div>
 
-            <div className="mt-6 space-y-4">
+            <div className="mt-6 space-y-3">
 
               {evidence.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-slate-700 bg-slate-950 p-6 text-center">
-                  <p className="text-sm text-slate-400">
-                    No portfolio evidence available.
+                <div className="rounded-xl border border-dashed border-slate-700 bg-slate-950/60 p-8 text-center">
+                  <p className="text-sm text-slate-500">
+                    No evidence available for review.
                   </p>
                 </div>
               ) : (
                 evidence.map((item) => (
                   <div
                     key={item.id}
-                    className="rounded-xl border border-slate-800 bg-slate-950 p-5"
+                    className="rounded-xl border border-white/[0.06] bg-slate-950/70 p-5"
                   >
 
-                    <div className="flex flex-col gap-4">
+                    {/* Evidence Header */}
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 
-                      <div className="flex flex-col justify-between gap-3 md:flex-row">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
 
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="font-semibold text-white">
+                            {item.title}
+                          </h3>
 
-                            <h3 className="font-semibold">
-                              {item.title}
-                            </h3>
-
-                            <span className="rounded-lg bg-slate-800 px-2.5 py-1 text-xs text-slate-400">
-                              {item.evidence_type}
-                            </span>
-
-                          </div>
-
-                          <p className="mt-2 text-sm font-medium text-emerald-400">
-                            {item.skill}
-                          </p>
-
-                          <p className="mt-2 text-sm leading-6 text-slate-400">
-                            {item.description}
-                          </p>
-                        </div>
-
-                        <div className="shrink-0">
-
-                          <span
-                            className={
-                              item.verification_status ===
-                              "Verified"
-                                ? "rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-400"
-                                : "rounded-lg bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-400"
-                            }
-                          >
-                            {item.verification_status}
+                          <span className="rounded-md bg-slate-800 px-2 py-1 text-[11px] text-slate-400">
+                            {item.evidence_type}
                           </span>
 
                         </div>
 
+                        <p className="mt-2 text-sm font-medium text-emerald-400">
+                          {item.skill}
+                        </p>
                       </div>
 
-                      <div className="flex flex-col justify-between gap-4 border-t border-slate-800 pt-4 sm:flex-row sm:items-center">
+                      <span
+                        className={`shrink-0 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold ${
+                          item.verification_status ===
+                          "Verified"
+                            ? "bg-emerald-400/10 text-emerald-400"
+                            : "bg-amber-400/10 text-amber-400"
+                        }`}
+                      >
+                        {item.verification_status}
+                      </span>
 
-                        <div>
-                          <p className="text-xs text-slate-500">
-                            Evidence Level
+                    </div>
+
+                    {/* Description */}
+                    <p className="mt-4 text-sm leading-6 text-slate-400">
+                      {item.description}
+                    </p>
+
+                    {/* Evidence Footer */}
+                    <div className="mt-4 flex flex-col gap-4 border-t border-white/[0.06] pt-4 sm:flex-row sm:items-center sm:justify-between">
+
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wider text-slate-600">
+                          Evidence Level
+                        </p>
+
+                        <p className="mt-1 text-sm text-slate-300">
+                          {item.evidence_level}
+                        </p>
+
+                        {item.verified_by && (
+                          <p className="mt-1 text-xs text-slate-600">
+                            Verified by {item.verified_by}
                           </p>
-
-                          <p className="mt-1 text-sm text-slate-300">
-                            {item.evidence_level}
-                          </p>
-
-                          {item.verified_by && (
-                            <p className="mt-1 text-xs text-slate-500">
-                              Verified by:{" "}
-                              {item.verified_by}
-                            </p>
-                          )}
-                        </div>
-
-                        {item.verification_status !==
-                          "Verified" && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              verifyEvidence(item.id)
-                            }
-                            disabled={
-                              verifyingId === item.id
-                            }
-                            className="rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {verifyingId === item.id
-                              ? "Verifying..."
-                              : "Verify Evidence"}
-                          </button>
                         )}
-
-                        {item.verification_status ===
-                          "Verified" && (
-                          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-5 py-2.5 text-sm font-medium text-emerald-400">
-                            ✓ Industry Verified
-                          </div>
-                        )}
-
                       </div>
+
+                      {item.verification_status !==
+                        "Verified" && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            verifyEvidence(item.id)
+                          }
+                          disabled={
+                            verifyingId === item.id
+                          }
+                          className="rounded-xl bg-emerald-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {verifyingId === item.id
+                            ? "Verifying..."
+                            : "Verify Evidence"}
+                        </button>
+                      )}
+
+                      {item.verification_status ===
+                        "Verified" && (
+                        <span className="text-sm font-medium text-emerald-400">
+                          ✓ Verified
+                        </span>
+                      )}
 
                     </div>
 
@@ -515,28 +483,31 @@ export default function CandidateProfilePage({
 
         </div>
 
-        {/* Matching Insight */}
-        <section className="mt-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6">
-
-          <p className="text-sm font-semibold text-emerald-400">
-            Industry Matching Insight
-          </p>
-
-          <h2 className="mt-2 text-xl font-semibold">
-            Verified evidence strengthens candidate confidence
-          </h2>
-
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
-            Industry verification converts self-declared
-            portfolio evidence into trusted competency evidence.
-            This evidence can be used alongside assessments and
-            skill scores when evaluating candidates for
-            internships, projects and employment opportunities.
-          </p>
-
-        </section>
-
       </div>
     </main>
+  );
+}
+
+function SummaryCard({
+  label,
+  value,
+  valueClass,
+}: {
+  label: string;
+  value: string | number;
+  valueClass: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/[0.07] bg-slate-900/70 p-5">
+      <p className="text-xs font-medium uppercase tracking-wider text-slate-600">
+        {label}
+      </p>
+
+      <p
+        className={`mt-3 text-2xl font-bold ${valueClass}`}
+      >
+        {value}
+      </p>
+    </div>
   );
 }

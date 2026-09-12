@@ -1,279 +1,291 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 type Mentorship = {
   id: number;
+  student_id: number;
   student: string;
+  faculty_id: number;
+  faculty: string;
   area: string;
   type: string;
+  message: string;
   status: string;
 };
 
-export default function FacultyMentorship() {
-  const [students, setStudents] = useState<Mentorship[]>([]);
+export default function FacultyMentorshipPage() {
+  const [requests, setRequests] = useState<Mentorship[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("All");
-  const [message, setMessage] = useState("");
+
+  const loadRequests = async () => {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/faculty/mentorship"
+      );
+
+      const data = await response.json();
+      setRequests(data);
+    } catch {
+      console.error("Failed to load mentorship requests");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function loadMentorship() {
-      try {
-        const response = await fetch(
-          "http://127.0.0.1:8000/faculty/mentorship"
-        );
-
-        if (response.ok) {
-          setStudents(await response.json());
-        }
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadMentorship();
+    loadRequests();
   }, []);
 
-  const areas = useMemo(() => {
-    return [
-      "All",
-      ...Array.from(new Set(students.map((student) => student.area))),
-    ];
-  }, [students]);
+  const updateStatus = async (
+    id: number,
+    status: string
+  ) => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/faculty/mentorship/${id}?status=${status}`,
+        {
+          method: "PUT",
+        }
+      );
 
-  const filteredStudents =
-    filter === "All"
-      ? students
-      : students.filter((student) => student.area === filter);
+      if (response.ok) {
+        loadRequests();
+      }
+    } catch {
+      console.error("Failed to update mentorship");
+    }
+  };
 
-  const studentsMentored = students.length;
+  const pending = requests.filter(
+    (item) => item.status === "Pending"
+  );
 
-  const activeMentorships = students.filter(
-    (student) => student.status === "Active"
-  ).length;
-
-  const industryReady = students.filter(
-    (student) => student.status === "Active"
-  ).length;
-
-  function handleMentorship(student: Mentorship) {
-    setMessage(
-      `Mentorship action initiated for ${student.student}.`
-    );
-
-    setTimeout(() => {
-      setMessage("");
-    }, 3500);
-  }
-
-  function handleViewStudent(student: Mentorship) {
-    setMessage(
-      `Opening competency profile for ${student.student}.`
-    );
-
-    setTimeout(() => {
-      setMessage("");
-    }, 3500);
-  }
+  const active = requests.filter(
+    (item) => item.status === "Accepted"
+  );
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <div className="mx-auto max-w-7xl px-8 py-8">
-        <div className="mt-6">
-          <p className="text-sm text-emerald-400">
-            Faculty Development & Student Intelligence
+    <div className="min-h-screen bg-slate-950 px-6 py-8 text-white lg:px-10">
+
+      {/* Header */}
+      <div className="mb-8">
+        <p className="text-sm font-medium text-emerald-400">
+          Faculty Intelligence
+        </p>
+
+        <h1 className="mt-1 text-3xl font-semibold">
+          Student Mentorship
+        </h1>
+
+        <p className="mt-2 text-sm text-slate-400">
+          Connect your expertise with students who need targeted
+          competency development.
+        </p>
+      </div>
+
+      {/* Metrics */}
+      <div className="mb-8 grid gap-4 md:grid-cols-3">
+
+        <Metric
+          label="Total Requests"
+          value={requests.length}
+        />
+
+        <Metric
+          label="Pending Requests"
+          value={pending.length}
+        />
+
+        <Metric
+          label="Active Mentorships"
+          value={active.length}
+        />
+
+      </div>
+
+      {/* Attention */}
+      {pending.length > 0 && (
+        <div className="mb-8 rounded-2xl border border-amber-400/20 bg-amber-400/5 p-5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-amber-400">
+            Faculty Attention
           </p>
 
-          <h2 className="mt-2 text-3xl font-bold">
-            Student Mentorship
+          <h2 className="mt-2 text-lg font-semibold">
+            {pending.length} mentorship request
+            {pending.length > 1 ? "s" : ""} awaiting review
           </h2>
 
-          <p className="mt-2 max-w-3xl text-slate-400">
-            Track student progress, competency development, research
-            guidance and industry readiness through faculty mentorship.
+          <p className="mt-1 text-sm text-slate-400">
+            Review student competency needs and accept relevant
+            mentorship requests.
           </p>
         </div>
+      )}
 
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
-          <Metric
-            label="Students Mentored"
-            value={studentsMentored}
-          />
+      {/* Requests */}
+      <section>
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">
+              Mentorship Requests
+            </h2>
 
-          <Metric
-            label="Active Mentorships"
-            value={activeMentorships}
-          />
-
-          <Metric
-            label="Industry-Ready"
-            value={industryReady}
-          />
+            <p className="mt-1 text-sm text-slate-500">
+              Student requests matched to your expertise.
+            </p>
+          </div>
         </div>
 
-        {message && (
-          <div className="mt-6 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-400">
-            {message}
+        {loading ? (
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center text-sm text-slate-400">
+            Loading mentorship requests...
           </div>
-        )}
-
-        <section className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-300">
-                Mentorship Focus
-              </p>
-
-              <p className="mt-1 text-xs text-slate-500">
-                Filter mentees by competency or research area.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {areas.map((area) => (
-                <button
-                  key={area}
-                  onClick={() => setFilter(area)}
-                  className={`rounded-lg px-3 py-2 text-xs font-medium transition ${
-                    filter === area
-                      ? "bg-emerald-400 text-slate-950"
-                      : "border border-white/10 bg-slate-900 text-slate-400 hover:text-white"
-                  }`}
-                >
-                  {area}
-                </button>
-              ))}
-            </div>
+        ) : requests.length === 0 ? (
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center text-sm text-slate-400">
+            No mentorship requests yet.
           </div>
-        </section>
+        ) : (
+          <div className="space-y-4">
+            {requests.map((request) => (
+              <div
+                key={request.id}
+                className="rounded-2xl border border-slate-800 bg-slate-900 p-5"
+              >
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
 
-        <section className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-6">
-          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-            <div>
-              <h3 className="text-lg font-semibold">
-                Mentees
-              </h3>
-
-              <p className="mt-1 text-sm text-slate-500">
-                Students currently connected to faculty mentorship.
-              </p>
-            </div>
-
-            <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs text-emerald-400">
-              {filteredStudents.length} visible records
-            </span>
-          </div>
-
-          {loading ? (
-            <div className="mt-5 rounded-xl border border-white/10 bg-slate-900/50 p-6 text-slate-400">
-              Loading mentorship records...
-            </div>
-          ) : filteredStudents.length === 0 ? (
-            <div className="mt-5 rounded-xl border border-white/10 bg-slate-900/50 p-6 text-slate-400">
-              No mentorship records found for this area.
-            </div>
-          ) : (
-            <div className="mt-5 space-y-4">
-              {filteredStudents.map((student) => (
-                <div
-                  key={student.id}
-                  className="rounded-xl border border-white/10 bg-slate-900/50 p-5 transition hover:border-emerald-900"
-                >
-                  <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-3">
-                        <h4 className="font-semibold">
-                          {student.student}
-                        </h4>
-
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs ${
-                            student.status === "Active"
-                              ? "bg-emerald-400/10 text-emerald-400"
-                              : "bg-amber-400/10 text-amber-300"
-                          }`}
-                        >
-                          {student.status}
-                        </span>
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-400/10 font-semibold text-emerald-400">
+                        {request.student
+                          .split(" ")
+                          .map((name) => name[0])
+                          .join("")
+                          .slice(0, 2)}
                       </div>
 
-                      <p className="mt-2 text-sm text-slate-400">
-                        {student.area}
+                      <div>
+                        <h3 className="font-semibold">
+                          {request.student}
+                        </h3>
+
+                        <p className="text-sm text-slate-500">
+                          Student · {request.area}
+                        </p>
+                      </div>
+                    </div>
+
+                    {request.message && (
+                      <p className="mt-4 max-w-2xl text-sm text-slate-400">
+                        “{request.message}”
                       </p>
+                    )}
+                  </div>
 
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        <span className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-300">
-                          {student.type}
-                        </span>
+                  <div className="flex flex-wrap items-center gap-3">
 
-                        <span className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-300">
-                          Competency Development
-                        </span>
-                      </div>
-                    </div>
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-medium ${
+                        request.status === "Accepted"
+                          ? "bg-emerald-400/10 text-emerald-400"
+                          : request.status === "Pending"
+                          ? "bg-amber-400/10 text-amber-400"
+                          : "bg-slate-800 text-slate-400"
+                      }`}
+                    >
+                      {request.status}
+                    </span>
 
-                    <div className="flex flex-wrap items-center gap-3">
+                    {request.status === "Pending" && (
+                      <>
+                        <button
+                          onClick={() =>
+                            updateStatus(
+                              request.id,
+                              "Accepted"
+                            )
+                          }
+                          className="rounded-xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300"
+                        >
+                          Accept
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            updateStatus(
+                              request.id,
+                              "Rejected"
+                            )
+                          }
+                          className="rounded-xl border border-slate-700 px-4 py-2 text-sm text-slate-300 transition hover:bg-slate-800"
+                        >
+                          Decline
+                        </button>
+                      </>
+                    )}
+
+                    {request.status === "Accepted" && (
                       <button
-                        onClick={() => handleViewStudent(student)}
-                        className="rounded-lg border border-white/10 px-4 py-2 text-sm text-slate-300 hover:bg-white/5"
+                        onClick={() =>
+                          updateStatus(
+                            request.id,
+                            "Completed"
+                          )
+                        }
+                        className="rounded-xl border border-slate-700 px-4 py-2 text-sm text-slate-300 transition hover:bg-slate-800"
                       >
-                        View Student
+                        Mark Completed
                       </button>
+                    )}
 
-                      <button
-                        onClick={() => handleMentorship(student)}
-                        className="rounded-lg bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-300"
-                      >
-                        Manage Mentorship
-                      </button>
-                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section className="mt-8 rounded-2xl border border-emerald-900/50 bg-emerald-950/20 p-6">
-          <p className="text-sm font-medium text-emerald-400">
-            Faculty Mentorship Intelligence
-          </p>
-
-          <h3 className="mt-2 text-xl font-semibold">
-            Competency-Based Mentorship
-          </h3>
-
-          <p className="mt-3 max-w-4xl leading-7 text-slate-300">
-            Mentorship connects faculty expertise with student competency
-            gaps and career goals, helping learners strengthen the skills
-            required for research, internships, projects and industry
-            opportunities.
-          </p>
-
-          <div className="mt-6 grid gap-3 md:grid-cols-4">
-            {[
-              "Review Student",
-              "Identify Skill Gaps",
-              "Guide Development",
-              "Improve Readiness",
-            ].map((step, index) => (
-              <div
-                key={step}
-                className="rounded-xl border border-emerald-900/40 bg-slate-950/50 p-4"
-              >
-                <p className="text-xs text-emerald-400">
-                  0{index + 1}
-                </p>
-
-                <p className="mt-2 text-sm font-medium">
-                  {step}
-                </p>
               </div>
             ))}
           </div>
-        </section>
-      </div>
-    </main>
+        )}
+      </section>
+
+      {/* Intelligence */}
+      <section className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+        <p className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+          Faculty Mentorship Intelligence
+        </p>
+
+        <h2 className="mt-2 text-xl font-semibold">
+          Competency-Based Mentorship
+        </h2>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-4">
+
+          <Step
+            number="01"
+            title="Review Student"
+            text="Understand the student's competency profile and development needs."
+          />
+
+          <Step
+            number="02"
+            title="Identify Skill Gaps"
+            text="Focus mentorship on competencies requiring improvement."
+          />
+
+          <Step
+            number="03"
+            title="Guide Development"
+            text="Provide targeted mentoring, projects and learning guidance."
+          />
+
+          <Step
+            number="04"
+            title="Improve Readiness"
+            text="Help students become better aligned with industry requirements."
+          />
+
+        </div>
+      </section>
+
+    </div>
   );
 }
 
@@ -285,11 +297,34 @@ function Metric({
   value: number;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-      <p className="text-sm text-slate-400">{label}</p>
+    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
+      <p className="text-sm text-slate-500">{label}</p>
+      <p className="mt-2 text-3xl font-semibold">{value}</p>
+    </div>
+  );
+}
 
-      <p className="mt-2 text-3xl font-bold text-emerald-400">
-        {value}
+function Step({
+  number,
+  title,
+  text,
+}: {
+  number: string;
+  title: string;
+  text: string;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-950 p-4">
+      <p className="text-xs font-semibold text-emerald-400">
+        {number}
+      </p>
+
+      <h3 className="mt-3 text-sm font-semibold">
+        {title}
+      </h3>
+
+      <p className="mt-2 text-xs leading-5 text-slate-500">
+        {text}
       </p>
     </div>
   );

@@ -33,58 +33,109 @@ export default function ShortlistPage({
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 p-8 text-white">
+    <main className="min-h-screen bg-slate-950 px-5 py-8 text-white lg:px-10">
       <div className="mx-auto max-w-2xl">
+
+        {/* BACK */}
         <Link
           href={`/industry/candidates/${candidateId}`}
-          className="text-sm text-emerald-400"
+          className="inline-flex items-center gap-2 text-sm text-slate-500 transition hover:text-white"
         >
-          ← Back to Candidate
+          <span>←</span>
+          Back to Candidate
         </Link>
 
-        <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-8">
-          <p className="text-sm text-emerald-400">
-            Industry Talent Workflow
-          </p>
+        {/* CONTENT */}
+        <section className="mt-8 rounded-2xl border border-white/[0.07] bg-slate-900/70 p-7 sm:p-9">
 
-          <h1 className="mt-2 text-2xl font-bold">
-            Shortlist Candidate
-          </h1>
+          {!success ? (
+            <>
+              {/* HEADER */}
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-400">
+                  Talent Review
+                </p>
 
-          <p className="mt-4 leading-7 text-slate-400">
-            Shortlisting moves the candidate into the Industry Review stage.
-            The candidate&apos;s verified competency evidence and skill gaps
-            remain available to the industry partner.
-          </p>
+                <h1 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
+                  Shortlist Candidate
+                </h1>
 
-          {success ? (
-            <div className="mt-8 rounded-xl border border-emerald-800 bg-emerald-950/30 p-5">
-              <p className="font-semibold text-emerald-400">
-                Candidate shortlisted successfully.
-              </p>
+                <p className="mt-3 text-sm leading-6 text-slate-500">
+                  Confirm that this candidate should move to the
+                  Industry Review stage.
+                </p>
+              </div>
 
-              <p className="mt-2 text-sm text-slate-400">
-                Next stage: Industry Review
-              </p>
+              {/* ACTION */}
+              <div className="mt-8 border-t border-white/[0.06] pt-7">
 
-              <Link
-                href="/industry/applications"
-                className="mt-5 inline-block rounded-lg bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950"
-              >
-                View Applications
-              </Link>
-            </div>
+                <button
+                  type="button"
+                  onClick={shortlist}
+                  disabled={loading}
+                  className="w-full rounded-xl bg-emerald-400 px-6 py-3.5 text-sm font-bold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {loading
+                    ? "Shortlisting..."
+                    : "Confirm Shortlist"}
+                </button>
+
+                <Link
+                  href={`/industry/candidates/${candidateId}`}
+                  className="mt-3 block text-center text-sm text-slate-500 transition hover:text-slate-300"
+                >
+                  Cancel
+                </Link>
+
+              </div>
+            </>
           ) : (
-            <button
-              onClick={shortlist}
-              disabled={loading}
-              className="mt-8 rounded-xl bg-emerald-400 px-6 py-3 font-semibold text-slate-950 disabled:opacity-50"
-            >
-              {loading ? "Shortlisting..." : "Confirm Shortlist"}
-            </button>
+            <>
+              {/* SUCCESS */}
+              <div className="text-center">
+
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-400/10 text-2xl text-emerald-400">
+                  ✓
+                </div>
+
+                <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-400">
+                  Shortlisted
+                </p>
+
+                <h1 className="mt-2 text-2xl font-bold tracking-tight">
+                  Candidate shortlisted
+                </h1>
+
+                <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-500">
+                  The candidate has been moved to the Industry
+                  Review stage.
+                </p>
+
+                <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center">
+
+                  <Link
+                    href={`/industry/candidates/${candidateId}`}
+                    className="rounded-xl border border-slate-700 px-5 py-3 text-sm font-semibold text-slate-300 transition hover:bg-slate-800 hover:text-white"
+                  >
+                    Back to Candidate
+                  </Link>
+
+                  <Link
+                    href="/industry/applications"
+                    className="rounded-xl bg-emerald-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300"
+                  >
+                    View Applications
+                  </Link>
+
+                </div>
+
+              </div>
+            </>
           )}
-        </div>
+
+        </section>
+
       </div>
-    </div>
+    </main>
   );
 }

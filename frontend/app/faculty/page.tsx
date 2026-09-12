@@ -23,7 +23,9 @@ type FacultyDashboard = {
 };
 
 export default function FacultyDashboardPage() {
-  const [data, setData] = useState<FacultyDashboard | null>(null);
+  const [data, setData] =
+    useState<FacultyDashboard | null>(null);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,67 +48,88 @@ export default function FacultyDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 p-8 text-white">
-        Loading faculty dashboard...
-      </div>
+      <main className="min-h-screen bg-slate-950 p-8 text-white">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-sm text-slate-500">
+            Loading faculty dashboard...
+          </p>
+        </div>
+      </main>
     );
   }
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-slate-950 p-8 text-white">
-        <div className="rounded-2xl border border-red-900 bg-red-950/30 p-6">
-          <p className="font-semibold text-red-400">
-            Unable to load faculty dashboard.
-          </p>
+      <main className="min-h-screen bg-slate-950 p-8 text-white">
+        <div className="mx-auto max-w-7xl">
+          <div className="rounded-2xl border border-red-500/20 bg-red-500/[0.05] p-6">
+            <p className="font-semibold text-red-400">
+              Unable to load faculty dashboard.
+            </p>
 
-          <p className="mt-2 text-sm text-slate-400">
-            Please make sure the AyushBridge backend is running.
-          </p>
+            <p className="mt-2 text-sm text-slate-500">
+              Please make sure the AyushBridge backend is running.
+            </p>
+          </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 p-8 text-white">
-      <div className="mx-auto max-w-7xl">
-        <div>
-          <p className="text-sm text-emerald-400">
-            Academia–Industry Intelligence
-          </p>
+    <main className="min-h-screen bg-slate-950 text-white">
+      <div className="mx-auto max-w-7xl px-5 py-7 lg:px-10 lg:py-9">
 
-          <h1 className="mt-2 text-3xl font-bold">
+        {/* HEADER */}
+        <header className="mb-8">
+
+          <div className="mb-3 flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-emerald-400" />
+
+            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-400">
+              Faculty Intelligence
+            </span>
+          </div>
+
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
             Faculty Dashboard
           </h1>
 
-          <p className="mt-3 text-slate-400">
-            Welcome, {data.name}
+          <p className="mt-2 text-sm text-slate-500">
+            {data.name} · {data.department}
           </p>
 
-          <p className="mt-1 text-sm text-slate-500">
-            {data.department}
-          </p>
-        </div>
+        </header>
 
-        <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-6">
-          <p className="text-sm text-slate-500">
-            Faculty Expertise
-          </p>
+        {/* EXPERTISE */}
+        <section className="rounded-2xl border border-white/[0.07] bg-slate-900/70 p-6">
 
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">
+              Expertise
+            </p>
+
+            <h2 className="mt-1 text-lg font-semibold">
+              Faculty Expertise
+            </h2>
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
             {data.expertise.map((item) => (
               <span
                 key={item}
-                className="rounded-full border border-emerald-900 bg-emerald-950/30 px-4 py-2 text-sm text-emerald-400"
+                className="rounded-lg border border-emerald-400/20 bg-emerald-400/[0.05] px-3 py-2 text-sm text-emerald-400"
               >
                 {item}
               </span>
             ))}
           </div>
-        </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        </section>
+
+        {/* METRICS */}
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+
           <Metric
             label="Active Collaborations"
             value={data.active_collaborations}
@@ -126,115 +149,110 @@ export default function FacultyDashboardPage() {
             label="Industry Engagements"
             value={data.industry_engagements}
           />
+
         </div>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          <section className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-emerald-400">
-                  Collaboration Ecosystem
-                </p>
+        {/* UPCOMING ENGAGEMENTS */}
+        <section className="mt-6 rounded-2xl border border-white/[0.07] bg-slate-900/70 p-6">
 
-                <h2 className="mt-1 text-xl font-semibold">
-                  Upcoming Engagements
-                </h2>
-              </div>
+          <div className="flex items-end justify-between gap-4">
 
-              <Link
-                href="/faculty/collaborations"
-                className="text-sm text-emerald-400"
-              >
-                View all →
-              </Link>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">
+                Schedule
+              </p>
+
+              <h2 className="mt-1 text-xl font-semibold">
+                Upcoming Engagements
+              </h2>
             </div>
 
-            <div className="mt-5 space-y-4">
-              {data.upcoming_events.map((event) => (
+            <Link
+              href="/faculty/collaborations"
+              className="text-sm font-medium text-emerald-400 transition hover:text-emerald-300"
+            >
+              View all →
+            </Link>
+
+          </div>
+
+          <div className="mt-6 space-y-3">
+
+            {data.upcoming_events.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-slate-700 bg-slate-950/60 p-7 text-center">
+                <p className="text-sm text-slate-500">
+                  No upcoming engagements.
+                </p>
+              </div>
+            ) : (
+              data.upcoming_events.map((event) => (
                 <div
                   key={`${event.title}-${event.date}`}
-                  className="rounded-xl border border-slate-800 bg-slate-950 p-4"
+                  className="rounded-xl border border-white/[0.06] bg-slate-950/60 p-5 transition hover:border-white/[0.1]"
                 >
-                  <div className="flex flex-col justify-between gap-3 sm:flex-row">
+                  <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+
                     <div>
-                      <h3 className="font-medium">
+                      <h3 className="font-medium text-white">
                         {event.title}
                       </h3>
 
-                      <p className="mt-1 text-sm text-slate-400">
+                      <p className="mt-1 text-sm text-slate-500">
                         {event.organization}
                       </p>
                     </div>
 
-                    <span className="h-fit rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-400">
-                      {event.type}
-                    </span>
+                    <div className="flex items-center gap-3">
+
+                      <span className="rounded-lg bg-slate-800/80 px-3 py-1.5 text-xs text-slate-400">
+                        {event.type}
+                      </span>
+
+                      <span className="text-sm font-medium text-emerald-400">
+                        {event.date}
+                      </span>
+
+                    </div>
+
                   </div>
-
-                  <p className="mt-3 text-xs text-emerald-400">
-                    {event.date}
-                  </p>
                 </div>
-              ))}
-            </div>
-          </section>
+              ))
+            )}
 
-          <section className="rounded-2xl border border-emerald-900/50 bg-emerald-950/20 p-6">
-            <p className="text-sm font-medium text-emerald-400">
-              AI Faculty–Industry Insight
-            </p>
+          </div>
 
-            <h2 className="mt-2 text-xl font-semibold">
-              Collaboration Intelligence
-            </h2>
+        </section>
 
-            <p className="mt-4 leading-7 text-slate-300">
-              {data.ai_insight}
-            </p>
+        {/* QUICK ACTIONS
+        <section className="mt-6">
 
-            <div className="mt-6 rounded-xl border border-emerald-900 bg-slate-950/40 p-4">
-              <p className="text-xs uppercase tracking-wider text-slate-500">
-                Suggested Focus Areas
-              </p>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-600">
+            Quick Access
+          </p>
 
-              <div className="mt-3 flex flex-wrap gap-2">
-                <span className="rounded-full bg-slate-900 px-3 py-1 text-xs text-slate-300">
-                  Healthcare Data Analysis
-                </span>
+          <div className="grid gap-3 md:grid-cols-3">
 
-                <span className="rounded-full bg-slate-900 px-3 py-1 text-xs text-slate-300">
-                  Biostatistics
-                </span>
+            <ActionCard
+              title="Industry Collaborations"
+              href="/faculty/collaborations"
+            />
 
-                <span className="rounded-full bg-slate-900 px-3 py-1 text-xs text-slate-300">
-                  Clinical Research
-                </span>
-              </div>
-            </div>
-          </section>
-        </div>
+            <ActionCard
+              title="Student Mentorship"
+              href="/faculty/mentorship"
+            />
 
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          <ActionCard
-            title="Industry Collaborations"
-            description="Connect with organizations for workshops, training, research, consultancy, and live projects."
-            href="/faculty/collaborations"
-          />
+            <ActionCard
+              title="Research & Consultancy"
+              href="/faculty/research"
+            />
 
-          <ActionCard
-            title="Student Mentorship"
-            description="Manage student mentorship and research guidance aligned with competency development."
-            href="/faculty/mentorship"
-          />
+          </div>
 
-          <ActionCard
-            title="Research & Consultancy"
-            description="Track industry-linked research projects, consultancy, and innovation opportunities."
-            href="/faculty/research"
-          />
-        </div>
+        </section> */}
+
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -246,39 +264,39 @@ function Metric({
   value: number;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-      <p className="text-sm text-slate-500">{label}</p>
+    <div className="rounded-2xl border border-white/[0.07] bg-slate-900/70 p-5">
 
-      <p className="mt-2 text-3xl font-bold text-white">
+      <p className="text-xs font-medium uppercase tracking-wider text-slate-600">
+        {label}
+      </p>
+
+      <p className="mt-3 text-2xl font-bold text-white">
         {value}
       </p>
+
     </div>
   );
 }
 
 function ActionCard({
   title,
-  description,
   href,
 }: {
   title: string;
-  description: string;
   href: string;
 }) {
   return (
     <Link
       href={href}
-      className="rounded-2xl border border-slate-800 bg-slate-900 p-6 transition hover:border-emerald-900"
+      className="group flex items-center justify-between rounded-xl border border-white/[0.07] bg-slate-900/70 p-5 transition hover:border-emerald-400/20 hover:bg-slate-900"
     >
-      <h2 className="font-semibold">{title}</h2>
+      <span className="text-sm font-medium text-slate-300 group-hover:text-white">
+        {title}
+      </span>
 
-      <p className="mt-2 text-sm leading-6 text-slate-400">
-        {description}
-      </p>
-
-      <p className="mt-4 text-sm text-emerald-400">
-        Open module →
-      </p>
+      <span className="text-sm text-slate-600 transition group-hover:text-emerald-400">
+        →
+      </span>
     </Link>
   );
 }

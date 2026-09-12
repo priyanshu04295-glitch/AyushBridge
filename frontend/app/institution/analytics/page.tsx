@@ -49,7 +49,7 @@ export default function InstitutionAnalyticsPage() {
     return (
       <main className="min-h-screen bg-slate-950 text-white">
         <div className="flex min-h-screen items-center justify-center">
-          <p className="text-slate-400">
+          <p className="text-sm text-slate-500">
             Loading institution analytics...
           </p>
         </div>
@@ -60,13 +60,13 @@ export default function InstitutionAnalyticsPage() {
   if (!data) {
     return (
       <main className="min-h-screen bg-slate-950 text-white">
-        <div className="flex min-h-screen items-center justify-center">
+        <div className="flex min-h-screen items-center justify-center px-6">
           <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6">
-            <p className="text-red-400">
+            <p className="font-medium text-red-400">
               Unable to load institution analytics.
             </p>
 
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="mt-2 text-sm text-slate-500">
               Make sure the FastAPI backend is running.
             </p>
           </div>
@@ -82,445 +82,502 @@ export default function InstitutionAnalyticsPage() {
 
   const topSkillGap =
     data.skill_gap_trend.length > 0
-      ? [...data.skill_gap_trend].sort((a, b) => b.gap - a.gap)[0]
+      ? [...data.skill_gap_trend].sort(
+          (a, b) => b.gap - a.gap
+        )[0]
       : null;
 
   const topDemand =
     data.industry_demand.length > 0
-      ? [...data.industry_demand].sort((a, b) => b.demand - a.demand)[0]
+      ? [...data.industry_demand].sort(
+          (a, b) => b.demand - a.demand
+        )[0]
       : null;
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-      <div className="flex min-h-screen">
-        <aside className="hidden w-64 border-r border-slate-800 bg-slate-950 p-6 lg:block">
-          <div className="mb-10">
-            <div className="text-2xl font-bold text-emerald-400">
-              AyushBridge
-            </div>
+      <div className="mx-auto max-w-7xl px-5 py-7 lg:px-10 lg:py-9">
 
-            <p className="mt-1 text-xs text-slate-500">
-              Academia–Industry Intelligence
+        {/* HEADER */}
+        <header className="mb-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-400">
+            Institution Intelligence
+          </p>
+
+          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+            Analytics & Outcomes
+          </h1>
+
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+            Analyse competency gaps, industry demand, student readiness
+            and the impact of institutional training.
+          </p>
+        </header>
+
+        {/* KEY METRICS */}
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Metric
+            label="Industry Ready"
+            value={`${data.placement_readiness.ready}%`}
+            note="Current readiness"
+          />
+
+          <Metric
+            label="Developing"
+            value={`${data.placement_readiness.developing}%`}
+            note="Further development"
+          />
+
+          <Metric
+            label="Needs Intervention"
+            value={`${data.placement_readiness.needs_intervention}%`}
+            note="Priority group"
+            warning
+          />
+
+          <Metric
+            label="Training Reach"
+            value={totalTrainingStudents.toString()}
+            note="Students reached"
+          />
+        </section>
+
+        {/* TOP SIGNALS */}
+        <section className="mt-7 grid gap-3 md:grid-cols-2">
+          {topSkillGap && (
+            <SignalCard
+              label="Highest Skill Gap"
+              title={topSkillGap.skill}
+              value={`${topSkillGap.gap}%`}
+              description="Development gap"
+              type="gap"
+            />
+          )}
+
+          {topDemand && (
+            <SignalCard
+              label="Highest Industry Demand"
+              title={topDemand.skill}
+              value={`${topDemand.demand}%`}
+              description="Current demand"
+              type="demand"
+            />
+          )}
+        </section>
+
+        {/* INDUSTRY DEMAND */}
+        <section className="mt-7 rounded-2xl border border-white/[0.07] bg-slate-900/70 p-6">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-400">
+              Market Intelligence
+            </p>
+
+            <h2 className="mt-2 text-xl font-semibold">
+              Industry Demand
+            </h2>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Current demand signals across tracked competencies.
             </p>
           </div>
 
-          <nav className="space-y-2 text-sm">
-            <a
-              href="/institution/dashboard"
-              className="block rounded-xl px-4 py-3 text-slate-400 hover:bg-slate-900"
-            >
-              Dashboard
-            </a>
-
-            <a
-              href="/institution/analytics"
-              className="block rounded-xl bg-emerald-500/10 px-4 py-3 font-medium text-emerald-400"
-            >
-              Analytics
-            </a>
-
-            <a
-              href="/student/dashboard"
-              className="block rounded-xl px-4 py-3 text-slate-400 hover:bg-slate-900"
-            >
-              Student Intelligence
-            </a>
-
-            <a
-              href="/industry"
-              className="block rounded-xl px-4 py-3 text-slate-400 hover:bg-slate-900"
-            >
-              Industry Demand
-            </a>
-
-            <a
-              href="/faculty"
-              className="block rounded-xl px-4 py-3 text-slate-400 hover:bg-slate-900"
-            >
-              Faculty Network
-            </a>
-          </nav>
-        </aside>
-
-        <section className="flex-1">
-          <header className="border-b border-slate-800 px-6 py-5 lg:px-10">
-            <p className="text-sm text-emerald-400">
-              Institution Analytics
-            </p>
-
-            <h1 className="mt-1 text-2xl font-bold">
-              Employability & Outcome Analytics
-            </h1>
-
-            <p className="mt-1 text-sm text-slate-400">
-              Track competency readiness, industry demand, training
-              impact and placement outcomes.
-            </p>
-          </header>
-
-          <div className="p-6 lg:p-10">
-            <div className="grid gap-4 md:grid-cols-4">
-              <Metric
-                label="Industry Readiness"
-                value={`${data.placement_readiness.ready}%`}
-                note="Currently industry ready"
-              />
-
-              <Metric
-                label="Developing Students"
-                value={`${data.placement_readiness.developing}%`}
-                note="Require further development"
-              />
-
-              <Metric
-                label="Needs Intervention"
-                value={`${data.placement_readiness.needs_intervention}%`}
-                note="Priority intervention group"
-                valueClass="text-amber-400"
-              />
-
-              <Metric
-                label="Training Reach"
-                value={totalTrainingStudents.toString()}
-                note="Students reached by programs"
-              />
-            </div>
-
-            <div className="mt-8 grid gap-6 lg:grid-cols-2">
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-                <h2 className="text-xl font-semibold">
-                  Industry Demand
-                </h2>
-
-                <p className="mt-1 text-sm text-slate-400">
-                  Current demand signals across tracked competencies.
-                </p>
-
-                <div className="mt-7 space-y-5">
-                  {data.industry_demand.map((item) => (
-                    <div key={item.skill}>
-                      <div className="flex justify-between gap-4">
-                        <span className="text-sm font-medium">
-                          {item.skill}
-                        </span>
-
-                        <span className="text-xs text-blue-400">
-                          {item.demand}% demand
-                        </span>
-                      </div>
-
-                      <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-800">
-                        <div
-                          className="h-full rounded-full bg-blue-400"
-                          style={{
-                            width: `${item.demand}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {topDemand && (
-                  <div className="mt-6 rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
-                    <p className="text-xs text-slate-500">
-                      Highest current demand
-                    </p>
-
-                    <p className="mt-2 font-semibold">
-                      {topDemand.skill}
-                    </p>
-
-                    <p className="mt-1 text-xs text-blue-400">
-                      {topDemand.demand}% industry demand
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6">
-                <p className="text-sm font-semibold text-emerald-400">
-                  AI Outcome Insight
-                </p>
-
-                <h2 className="mt-3 text-xl font-semibold">
-                  Industry alignment is improving.
-                </h2>
-
-                <p className="mt-3 text-sm leading-6 text-slate-300">
-                  {data.ai_insight}
-                </p>
-
-                {topSkillGap && (
-                  <div className="mt-6 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
-                    <p className="text-xs text-slate-500">
-                      Priority skill gap
-                    </p>
-
-                    <p className="mt-2 font-semibold">
-                      {topSkillGap.skill}
-                    </p>
-
-                    <p className="mt-1 text-xs text-amber-400">
-                      {topSkillGap.gap}% development gap
-                    </p>
-                  </div>
-                )}
-
-                <div className="mt-5 rounded-xl border border-slate-800 bg-slate-950 p-4">
-                  <p className="text-xs text-slate-500">
-                    Institutional decision signal
+          <div className="mt-7 grid gap-x-8 gap-y-6 md:grid-cols-2">
+            {data.industry_demand.map((item) => (
+              <div key={item.skill}>
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-sm font-medium text-slate-200">
+                    {item.skill}
                   </p>
 
-                  <p className="mt-2 text-sm font-medium">
-                    Prioritize training interventions where skill gaps
-                    remain highest against industry demand.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-              <h2 className="text-xl font-semibold">
-                Skill Gap Priorities
-              </h2>
-
-              <p className="mt-1 text-sm text-slate-400">
-                Competencies with the largest development gaps.
-              </p>
-
-              <div className="mt-6 overflow-x-auto">
-                <table className="w-full min-w-[650px] text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-xs uppercase tracking-wide text-slate-500">
-                      <th className="pb-4">Competency</th>
-                      <th className="pb-4">Gap</th>
-                      <th className="pb-4">Priority</th>
-                      <th className="pb-4">Recommended Action</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {data.skill_gap_trend.map((item) => (
-                      <tr
-                        key={item.skill}
-                        className="border-b border-slate-800/70"
-                      >
-                        <td className="py-5 font-medium">
-                          {item.skill}
-                        </td>
-
-                        <td className="py-5">
-                          <div className="flex items-center gap-3">
-                            <div className="h-2 w-28 overflow-hidden rounded-full bg-slate-800">
-                              <div
-                                className="h-full rounded-full bg-amber-400"
-                                style={{
-                                  width: `${Math.min(
-                                    item.gap * 2,
-                                    100
-                                  )}%`,
-                                }}
-                              />
-                            </div>
-
-                            <span className="text-xs text-amber-400">
-                              {item.gap}%
-                            </span>
-                          </div>
-                        </td>
-
-                        <td className="py-5">
-                          <span
-                            className={`rounded-full px-3 py-1 text-xs ${
-                              item.gap >= 35
-                                ? "bg-red-500/10 text-red-400"
-                                : item.gap >= 15
-                                  ? "bg-amber-500/10 text-amber-400"
-                                  : "bg-slate-800 text-slate-400"
-                            }`}
-                          >
-                            {item.gap >= 35
-                              ? "High"
-                              : item.gap >= 15
-                                ? "Medium"
-                                : "Low"}
-                          </span>
-                        </td>
-
-                        <td className="py-5 text-slate-400">
-                          {item.gap >= 35
-                            ? "Launch targeted training"
-                            : item.gap >= 15
-                              ? "Add practical workshop"
-                              : "Monitor competency trend"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div className="mt-8 grid gap-6 lg:grid-cols-2">
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-                <h2 className="text-xl font-semibold">
-                  Placement Readiness
-                </h2>
-
-                <p className="mt-1 text-sm text-slate-400">
-                  Current institutional readiness distribution.
-                </p>
-
-                <div className="mt-6 space-y-5">
-                  <ReadinessRow
-                    label="Industry Ready"
-                    value={data.placement_readiness.ready}
-                    className="bg-emerald-500"
-                  />
-
-                  <ReadinessRow
-                    label="Developing"
-                    value={data.placement_readiness.developing}
-                    className="bg-blue-400"
-                  />
-
-                  <ReadinessRow
-                    label="Needs Intervention"
-                    value={data.placement_readiness.needs_intervention}
-                    className="bg-amber-400"
-                  />
+                  <span className="text-xs font-semibold text-blue-400">
+                    {item.demand}%
+                  </span>
                 </div>
 
-                <div className="mt-6 rounded-xl border border-slate-800 bg-slate-950 p-4">
-                  <p className="text-xs text-slate-500">
-                    Interpretation
-                  </p>
-
-                  <p className="mt-2 text-sm leading-6 text-slate-300">
-                    The readiness distribution helps the institution
-                    identify students who are already opportunity-ready,
-                    those who need targeted development and those who
-                    require stronger intervention.
-                  </p>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-                <h2 className="text-xl font-semibold">
-                  Training Impact
-                </h2>
-
-                <p className="mt-1 text-sm text-slate-400">
-                  Students reached through competency development
-                  programs.
-                </p>
-
-                <div className="mt-6 space-y-4">
-                  {data.training_impact.map((item) => (
-                    <div
-                      key={item.program}
-                      className="rounded-xl border border-slate-800 bg-slate-950 p-4"
-                    >
-                      <div className="flex items-center justify-between gap-4">
-                        <p className="text-sm font-medium">
-                          {item.program}
-                        </p>
-
-                        <p className="text-xl font-bold text-emerald-400">
-                          {item.students}
-                        </p>
-                      </div>
-
-                      <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-800">
-                        <div
-                          className="h-full rounded-full bg-emerald-500"
-                          style={{
-                            width: `${Math.min(
-                              (item.students / 150) * 100,
-                              100
-                            )}%`,
-                          }}
-                        />
-                      </div>
-
-                      <p className="mt-2 text-xs text-slate-500">
-                        students reached
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
-              <h2 className="text-lg font-semibold">
-                Data-to-Decision Loop
-              </h2>
-
-              <div className="mt-5 grid gap-3 md:grid-cols-5">
-                {[
-                  "Collect Skills",
-                  "Map Demand",
-                  "Identify Gaps",
-                  "Train Students",
-                  "Measure Outcomes",
-                ].map((step, index) => (
+                <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-800">
                   <div
-                    key={step}
-                    className="rounded-xl border border-slate-800 bg-slate-950 p-4"
-                  >
-                    <p className="text-xs text-emerald-400">
-                      0{index + 1}
+                    className="h-full rounded-full bg-blue-400"
+                    style={{
+                      width: `${item.demand}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* SKILL GAP ANALYSIS */}
+        <section className="mt-7 rounded-2xl border border-white/[0.07] bg-slate-900/70 p-6">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-400">
+              Competency Analysis
+            </p>
+
+            <h2 className="mt-2 text-xl font-semibold">
+              Skill Gap Priorities
+            </h2>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Competencies requiring institutional development.
+            </p>
+          </div>
+
+          <div className="mt-6 overflow-x-auto">
+            <table className="w-full min-w-[680px] text-left">
+              <thead>
+                <tr className="border-b border-white/[0.07] text-[11px] uppercase tracking-wider text-slate-600">
+                  <th className="px-3 py-3 font-medium">
+                    Competency
+                  </th>
+
+                  <th className="px-3 py-3 font-medium">
+                    Gap
+                  </th>
+
+                  <th className="px-3 py-3 font-medium">
+                    Priority
+                  </th>
+
+                  <th className="px-3 py-3 font-medium">
+                    Recommended Action
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {data.skill_gap_trend.map((item) => {
+                  const priority =
+                    item.gap >= 35
+                      ? "High"
+                      : item.gap >= 15
+                        ? "Medium"
+                        : "Low";
+
+                  return (
+                    <tr
+                      key={item.skill}
+                      className="border-b border-white/[0.05] transition hover:bg-slate-800/30"
+                    >
+                      <td className="px-3 py-4 text-sm font-medium text-slate-200">
+                        {item.skill}
+                      </td>
+
+                      <td className="px-3 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-800">
+                            <div
+                              className="h-full rounded-full bg-amber-400"
+                              style={{
+                                width: `${Math.min(
+                                  item.gap * 2,
+                                  100
+                                )}%`,
+                              }}
+                            />
+                          </div>
+
+                          <span className="text-xs font-semibold text-amber-400">
+                            {item.gap}%
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="px-3 py-4">
+                        <PriorityBadge priority={priority} />
+                      </td>
+
+                      <td className="px-3 py-4 text-xs text-slate-500">
+                        {priority === "High"
+                          ? "Launch targeted training"
+                          : priority === "Medium"
+                            ? "Add practical workshop"
+                            : "Monitor competency trend"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* READINESS + TRAINING */}
+        <section className="mt-7 grid gap-6 lg:grid-cols-2">
+
+          {/* READINESS */}
+          <div className="rounded-2xl border border-white/[0.07] bg-slate-900/70 p-6">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-400">
+                Student Outcomes
+              </p>
+
+              <h2 className="mt-2 text-xl font-semibold">
+                Placement Readiness
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-500">
+                Current institutional readiness distribution.
+              </p>
+            </div>
+
+            <div className="mt-7 space-y-6">
+              <ReadinessBar
+                label="Industry Ready"
+                value={data.placement_readiness.ready}
+                className="bg-emerald-500"
+              />
+
+              <ReadinessBar
+                label="Developing"
+                value={data.placement_readiness.developing}
+                className="bg-blue-400"
+              />
+
+              <ReadinessBar
+                label="Needs Intervention"
+                value={data.placement_readiness.needs_intervention}
+                className="bg-amber-400"
+              />
+            </div>
+          </div>
+
+          {/* TRAINING */}
+          <div className="rounded-2xl border border-white/[0.07] bg-slate-900/70 p-6">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-400">
+                Development Impact
+              </p>
+
+              <h2 className="mt-2 text-xl font-semibold">
+                Training Impact
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-500">
+                Students reached through competency development programs.
+              </p>
+            </div>
+
+            <div className="mt-6 space-y-4">
+              {data.training_impact.map((item) => (
+                <div key={item.program}>
+                  <div className="flex items-center justify-between gap-4">
+                    <p className="text-sm font-medium text-slate-300">
+                      {item.program}
                     </p>
 
-                    <p className="mt-2 text-sm font-medium">
-                      {step}
+                    <p className="text-sm font-semibold text-emerald-400">
+                      {item.students}
                     </p>
                   </div>
-                ))}
-              </div>
 
-              <p className="mt-5 text-sm leading-6 text-slate-400">
-                Institution analytics closes the feedback loop by
-                connecting student competencies, industry demand,
-                training interventions and verified career outcomes.
-              </p>
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      className="h-full rounded-full bg-emerald-500"
+                      style={{
+                        width: `${Math.min(
+                          (item.students /
+                            Math.max(totalTrainingStudents, 1)) *
+                            100,
+                          100
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
+
+        {/* AI INSIGHT */}
+        <section className="mt-7 rounded-2xl border border-emerald-400/15 bg-emerald-400/[0.04] p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-400">
+            AI Outcome Insight
+          </p>
+
+          <h2 className="mt-2 text-xl font-semibold">
+            Institutional Performance Signal
+          </h2>
+
+          <p className="mt-4 max-w-4xl text-sm leading-7 text-slate-300">
+            {data.ai_insight}
+          </p>
+
+          {topSkillGap && (
+            <div className="mt-6 rounded-xl border border-amber-400/15 bg-slate-950/60 p-4">
+              <p className="text-xs text-slate-600">
+                Recommended focus
+              </p>
+
+              <div className="mt-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm font-semibold text-slate-200">
+                  {topSkillGap.skill}
+                </p>
+
+                <p className="text-xs text-amber-400">
+                  {topSkillGap.gap}% development gap
+                </p>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* DECISION LOOP */}
+        <section className="mt-7 rounded-2xl border border-white/[0.07] bg-slate-900/40 p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-600">
+            Institutional Intelligence
+          </p>
+
+          <h2 className="mt-2 text-xl font-semibold">
+            Data-to-Decision Loop
+          </h2>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            {[
+              "Industry Demand",
+              "Skill Gap",
+              "Training",
+              "Student Readiness",
+              "Outcome Feedback",
+            ].map((step, index) => (
+              <div
+                key={step}
+                className="rounded-xl border border-white/[0.06] bg-slate-950/70 p-4"
+              >
+                <p className="text-xs font-semibold text-emerald-400">
+                  0{index + 1}
+                </p>
+
+                <p className="mt-2 text-sm font-medium text-slate-300">
+                  {step}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
       </div>
     </main>
   );
 }
 
+/* ---------------- COMPONENTS ---------------- */
+
 function Metric({
   label,
   value,
   note,
-  valueClass = "text-white",
+  warning = false,
 }: {
   label: string;
   value: string;
   note: string;
-  valueClass?: string;
+  warning?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-      <p className="text-sm text-slate-400">{label}</p>
+    <div className="rounded-2xl border border-white/[0.07] bg-slate-900/70 p-5">
+      <p className="text-xs font-medium uppercase tracking-wider text-slate-600">
+        {label}
+      </p>
 
-      <p className={`mt-2 text-3xl font-bold ${valueClass}`}>
+      <p
+        className={`mt-3 text-2xl font-bold ${
+          warning ? "text-amber-400" : "text-white"
+        }`}
+      >
         {value}
       </p>
 
-      <p className="mt-2 text-xs text-emerald-400">
+      <p
+        className={`mt-2 text-xs ${
+          warning ? "text-amber-400/80" : "text-emerald-400"
+        }`}
+      >
         {note}
       </p>
     </div>
   );
 }
 
-function ReadinessRow({
+function SignalCard({
+  label,
+  title,
+  value,
+  description,
+  type,
+}: {
+  label: string;
+  title: string;
+  value: string;
+  description: string;
+  type: "gap" | "demand";
+}) {
+  return (
+    <div
+      className={`rounded-2xl border p-5 ${
+        type === "gap"
+          ? "border-amber-400/15 bg-amber-400/[0.04]"
+          : "border-blue-400/15 bg-blue-400/[0.04]"
+      }`}
+    >
+      <p
+        className={`text-xs font-semibold uppercase tracking-[0.14em] ${
+          type === "gap"
+            ? "text-amber-400"
+            : "text-blue-400"
+        }`}
+      >
+        {label}
+      </p>
+
+      <div className="mt-4 flex items-end justify-between gap-4">
+        <div>
+          <h3 className="text-lg font-semibold">
+            {title}
+          </h3>
+
+          <p className="mt-1 text-xs text-slate-600">
+            {description}
+          </p>
+        </div>
+
+        <p
+          className={`text-2xl font-bold ${
+            type === "gap"
+              ? "text-amber-400"
+              : "text-blue-400"
+          }`}
+        >
+          {value}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function PriorityBadge({
+  priority,
+}: {
+  priority: string;
+}) {
+  const className =
+    priority === "High"
+      ? "bg-red-400/10 text-red-400"
+      : priority === "Medium"
+        ? "bg-amber-400/10 text-amber-400"
+        : "bg-slate-800 text-slate-500";
+
+  return (
+    <span
+      className={`rounded-lg px-2.5 py-1.5 text-[10px] font-semibold ${className}`}
+    >
+      {priority}
+    </span>
+  );
+}
+
+function ReadinessBar({
   label,
   value,
   className,
@@ -531,12 +588,14 @@ function ReadinessRow({
 }) {
   return (
     <div>
-      <div className="flex justify-between text-sm">
-        <span>{label}</span>
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium text-slate-300">
+          {label}
+        </p>
 
-        <span className="text-slate-400">
+        <p className="text-xs text-slate-500">
           {value}%
-        </span>
+        </p>
       </div>
 
       <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-800">
